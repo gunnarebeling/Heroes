@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Heroes.Migrations
 {
     [DbContext(typeof(HeroesDbContext))]
-    [Migration("20241202192910_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241203192144_addedAvailable2")]
+    partial class addedAvailable2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,38 @@ namespace Heroes.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("HeroeQuest", b =>
+                {
+                    b.Property<int>("HeroesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("QuestsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("HeroesId", "QuestsId");
+
+                    b.HasIndex("QuestsId");
+
+                    b.ToTable("HeroeQuest");
+
+                    b.HasData(
+                        new
+                        {
+                            HeroesId = 2,
+                            QuestsId = 2
+                        },
+                        new
+                        {
+                            HeroesId = 2,
+                            QuestsId = 3
+                        },
+                        new
+                        {
+                            HeroesId = 3,
+                            QuestsId = 3
+                        });
+                });
 
             modelBuilder.Entity("Heroes.Models.Archetype", b =>
                 {
@@ -78,12 +110,15 @@ namespace Heroes.Migrations
                     b.Property<int>("EquipmentTypeId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("HeroeId")
+                    b.Property<int?>("HeroeId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("QuestId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Weight")
                         .HasColumnType("integer");
@@ -94,6 +129,8 @@ namespace Heroes.Migrations
 
                     b.HasIndex("HeroeId");
 
+                    b.HasIndex("QuestId");
+
                     b.ToTable("Equipment");
 
                     b.HasData(
@@ -102,8 +139,8 @@ namespace Heroes.Migrations
                             Id = 1,
                             Description = "A legendary sword of unparalleled sharpness and strength.",
                             EquipmentTypeId = 1,
-                            HeroeId = 1,
                             Name = "Excalibur",
+                            QuestId = 2,
                             Weight = 10
                         },
                         new
@@ -111,8 +148,8 @@ namespace Heroes.Migrations
                             Id = 2,
                             Description = "A staff imbued with powerful magical energy.",
                             EquipmentTypeId = 4,
-                            HeroeId = 2,
                             Name = "Arcane Staff",
+                            QuestId = 3,
                             Weight = 7
                         },
                         new
@@ -120,8 +157,8 @@ namespace Heroes.Migrations
                             Id = 3,
                             Description = "A lightweight dagger designed for stealth attacks.",
                             EquipmentTypeId = 1,
-                            HeroeId = 3,
                             Name = "Shadow Dagger",
+                            QuestId = 5,
                             Weight = 2
                         },
                         new
@@ -129,8 +166,8 @@ namespace Heroes.Migrations
                             Id = 4,
                             Description = "A shield blessed by divine power to repel evil.",
                             EquipmentTypeId = 2,
-                            HeroeId = 4,
                             Name = "Holy Shield",
+                            QuestId = 4,
                             Weight = 15
                         });
                 });
@@ -201,14 +238,9 @@ namespace Heroes.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("QuestId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArchetypeId");
-
-                    b.HasIndex("QuestId");
 
                     b.ToTable("Heroes");
 
@@ -219,8 +251,7 @@ namespace Heroes.Migrations
                             ArchetypeId = 1,
                             Description = "A brave warrior seeking redemption.",
                             Level = 15,
-                            Name = "Arthas",
-                            QuestId = 1
+                            Name = "Arthas"
                         },
                         new
                         {
@@ -228,8 +259,7 @@ namespace Heroes.Migrations
                             ArchetypeId = 2,
                             Description = "A wise mage with unparalleled arcane knowledge.",
                             Level = 20,
-                            Name = "Merlin",
-                            QuestId = 1
+                            Name = "Merlin"
                         },
                         new
                         {
@@ -237,8 +267,7 @@ namespace Heroes.Migrations
                             ArchetypeId = 3,
                             Description = "A cunning rogue skilled in infiltration and assassination.",
                             Level = 12,
-                            Name = "Lyra",
-                            QuestId = 3
+                            Name = "Lyra"
                         },
                         new
                         {
@@ -311,6 +340,21 @@ namespace Heroes.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HeroeQuest", b =>
+                {
+                    b.HasOne("Heroes.Models.Heroe", null)
+                        .WithMany()
+                        .HasForeignKey("HeroesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Heroes.Models.Quest", null)
+                        .WithMany()
+                        .HasForeignKey("QuestsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Heroes.Models.Equipment", b =>
                 {
                     b.HasOne("Heroes.Models.EquipmentType", "EquipmentType")
@@ -321,13 +365,19 @@ namespace Heroes.Migrations
 
                     b.HasOne("Heroes.Models.Heroe", "Heroe")
                         .WithMany("Equipment")
-                        .HasForeignKey("HeroeId")
+                        .HasForeignKey("HeroeId");
+
+                    b.HasOne("Heroes.Models.Quest", "Quest")
+                        .WithMany()
+                        .HasForeignKey("QuestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("EquipmentType");
 
                     b.Navigation("Heroe");
+
+                    b.Navigation("Quest");
                 });
 
             modelBuilder.Entity("Heroes.Models.Heroe", b =>
@@ -338,23 +388,12 @@ namespace Heroes.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Heroes.Models.Quest", "Quest")
-                        .WithMany("Heroes")
-                        .HasForeignKey("QuestId");
-
                     b.Navigation("Archetype");
-
-                    b.Navigation("Quest");
                 });
 
             modelBuilder.Entity("Heroes.Models.Heroe", b =>
                 {
                     b.Navigation("Equipment");
-                });
-
-            modelBuilder.Entity("Heroes.Models.Quest", b =>
-                {
-                    b.Navigation("Heroes");
                 });
 #pragma warning restore 612, 618
         }

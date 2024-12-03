@@ -18,7 +18,6 @@ public class HeroeDetailsDTO
     public int Level { get; set; }
     public int ArchetypeId { get; set; }
     public  ArchetypeDTO Archetype { get; set; }
-    public int? QuestId { get; set; }
-    public QuestForHeroesDTO Quest {get; set;}
+    public List<QuestForHeroesDTO> Quests {get; set;}
     public List<EquipmentForHeroDTO> Equipment { get; set; }
 }

@@ -63,8 +63,7 @@ namespace Heroes.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Level = table.Column<int>(type: "integer", nullable: false),
-                    ArchetypeId = table.Column<int>(type: "integer", nullable: false),
-                    QuestId = table.Column<int>(type: "integer", nullable: true)
+                    ArchetypeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,11 +74,6 @@ namespace Heroes.Migrations
                         principalTable: "Archetypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Heroes_Quests_QuestId",
-                        column: x => x.QuestId,
-                        principalTable: "Quests",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -92,7 +86,8 @@ namespace Heroes.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     EquipmentTypeId = table.Column<int>(type: "integer", nullable: false),
                     Weight = table.Column<int>(type: "integer", nullable: false),
-                    HeroeId = table.Column<int>(type: "integer", nullable: false)
+                    QuestId = table.Column<int>(type: "integer", nullable: false),
+                    HeroeId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -107,6 +102,35 @@ namespace Heroes.Migrations
                         name: "FK_Equipment_Heroes_HeroeId",
                         column: x => x.HeroeId,
                         principalTable: "Heroes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Equipment_Quests_QuestId",
+                        column: x => x.QuestId,
+                        principalTable: "Quests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HeroeQuest",
+                columns: table => new
+                {
+                    HeroesId = table.Column<int>(type: "integer", nullable: false),
+                    QuestsId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HeroeQuest", x => new { x.HeroesId, x.QuestsId });
+                    table.ForeignKey(
+                        name: "FK_HeroeQuest_Heroes_HeroesId",
+                        column: x => x.HeroesId,
+                        principalTable: "Heroes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HeroeQuest_Quests_QuestsId",
+                        column: x => x.QuestsId,
+                        principalTable: "Quests",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -147,25 +171,35 @@ namespace Heroes.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Heroes",
-                columns: new[] { "Id", "ArchetypeId", "Description", "Level", "Name", "QuestId" },
+                table: "Equipment",
+                columns: new[] { "Id", "Description", "EquipmentTypeId", "HeroeId", "Name", "QuestId", "Weight" },
                 values: new object[,]
                 {
-                    { 1, 1, "A brave warrior seeking redemption.", 15, "Arthas", 1 },
-                    { 2, 2, "A wise mage with unparalleled arcane knowledge.", 20, "Merlin", 1 },
-                    { 3, 3, "A cunning rogue skilled in infiltration and assassination.", 12, "Lyra", 3 },
-                    { 4, 4, "A devout cleric who heals her allies with divine power.", 18, "Elenora", null }
+                    { 1, "A legendary sword of unparalleled sharpness and strength.", 1, null, "Excalibur", 2, 10 },
+                    { 2, "A staff imbued with powerful magical energy.", 4, null, "Arcane Staff", 3, 7 },
+                    { 3, "A lightweight dagger designed for stealth attacks.", 1, null, "Shadow Dagger", 5, 2 },
+                    { 4, "A shield blessed by divine power to repel evil.", 2, null, "Holy Shield", 4, 15 }
                 });
 
             migrationBuilder.InsertData(
-                table: "Equipment",
-                columns: new[] { "Id", "Description", "EquipmentTypeId", "HeroeId", "Name", "Weight" },
+                table: "Heroes",
+                columns: new[] { "Id", "ArchetypeId", "Description", "Level", "Name" },
                 values: new object[,]
                 {
-                    { 1, "A legendary sword of unparalleled sharpness and strength.", 1, 1, "Excalibur", 10 },
-                    { 2, "A staff imbued with powerful magical energy.", 4, 2, "Arcane Staff", 7 },
-                    { 3, "A lightweight dagger designed for stealth attacks.", 1, 3, "Shadow Dagger", 2 },
-                    { 4, "A shield blessed by divine power to repel evil.", 2, 4, "Holy Shield", 15 }
+                    { 1, 1, "A brave warrior seeking redemption.", 15, "Arthas" },
+                    { 2, 2, "A wise mage with unparalleled arcane knowledge.", 20, "Merlin" },
+                    { 3, 3, "A cunning rogue skilled in infiltration and assassination.", 12, "Lyra" },
+                    { 4, 4, "A devout cleric who heals her allies with divine power.", 18, "Elenora" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "HeroeQuest",
+                columns: new[] { "HeroesId", "QuestsId" },
+                values: new object[,]
+                {
+                    { 2, 2 },
+                    { 2, 3 },
+                    { 3, 3 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -179,14 +213,19 @@ namespace Heroes.Migrations
                 column: "HeroeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Equipment_QuestId",
+                table: "Equipment",
+                column: "QuestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HeroeQuest_QuestsId",
+                table: "HeroeQuest",
+                column: "QuestsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Heroes_ArchetypeId",
                 table: "Heroes",
                 column: "ArchetypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Heroes_QuestId",
-                table: "Heroes",
-                column: "QuestId");
         }
 
         /// <inheritdoc />
@@ -196,16 +235,19 @@ namespace Heroes.Migrations
                 name: "Equipment");
 
             migrationBuilder.DropTable(
+                name: "HeroeQuest");
+
+            migrationBuilder.DropTable(
                 name: "EquipmentTypes");
 
             migrationBuilder.DropTable(
                 name: "Heroes");
 
             migrationBuilder.DropTable(
-                name: "Archetypes");
+                name: "Quests");
 
             migrationBuilder.DropTable(
-                name: "Quests");
+                name: "Archetypes");
         }
     }
 }

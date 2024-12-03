@@ -12,7 +12,6 @@ public class Heroe
     public int Level { get; set; }
     public int ArchetypeId { get; set; }
     public  Archetype Archetype { get; set; }
-    public int? QuestId { get; set; }
-    public Quest Quest {get; set;}
+    public List<Quest> Quests {get; set;}
     public List<Equipment> Equipment { get; set; }
 }

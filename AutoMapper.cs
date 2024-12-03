@@ -15,6 +15,8 @@ public class AutoMapperProfiles : Profile
         CreateMap<EquipmentForHeroDTO, Equipment>();
         CreateMap<Equipment, EquipmentDTO>();
         CreateMap<EquipmentDTO, Equipment>();
+        CreateMap<Equipment, EquipmentPostDTO>();
+        CreateMap<EquipmentPostDTO, Equipment>();
         CreateMap<Archetype, ArchetypeDTO>();
         CreateMap<ArchetypeDTO, Archetype>();
         CreateMap<Quest, QuestForHeroesDTO>();

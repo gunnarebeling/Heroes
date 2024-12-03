@@ -45,7 +45,6 @@ public class HeroesDbContext : DbContext
                 Description = "A brave warrior seeking redemption.",
                 Level = 15,
                 ArchetypeId = 1, // Warrior
-                QuestId = 1
             },
             new Heroe
             {
@@ -54,7 +53,7 @@ public class HeroesDbContext : DbContext
                 Description = "A wise mage with unparalleled arcane knowledge.",
                 Level = 20,
                 ArchetypeId = 2, // Mage
-                QuestId = 1
+            
             },
             new Heroe
             {
@@ -63,7 +62,6 @@ public class HeroesDbContext : DbContext
                 Description = "A cunning rogue skilled in infiltration and assassination.",
                 Level = 12,
                 ArchetypeId = 3, // Rogue
-                QuestId = 3
             },
             new Heroe
             {
@@ -85,7 +83,8 @@ public class HeroesDbContext : DbContext
                 Description = "A legendary sword of unparalleled sharpness and strength.",
                 EquipmentTypeId = 1, // Sword
                 Weight = 10,
-                HeroeId = 1 // Arthas (Warrior)
+                QuestId = 2
+
             },
             new Equipment
             {
@@ -94,7 +93,8 @@ public class HeroesDbContext : DbContext
                 Description = "A staff imbued with powerful magical energy.",
                 EquipmentTypeId = 4, // Magic Staff
                 Weight = 7,
-                HeroeId = 2 // Merlin (Mage)
+                QuestId = 3
+
             },
             new Equipment
             {
@@ -103,7 +103,8 @@ public class HeroesDbContext : DbContext
                 Description = "A lightweight dagger designed for stealth attacks.",
                 EquipmentTypeId = 1, // Dagger
                 Weight = 2,
-                HeroeId = 3 // Lyra (Rogue)
+                QuestId = 5
+
             },
             new Equipment
             {
@@ -112,7 +113,8 @@ public class HeroesDbContext : DbContext
                 Description = "A shield blessed by divine power to repel evil.",
                 EquipmentTypeId = 2, // Shield
                 Weight = 15,
-                HeroeId = 4
+                QuestId = 4
+
             }
             
         });
@@ -156,6 +158,18 @@ public class HeroesDbContext : DbContext
             }
             
         });
+
+        modelBuilder.Entity<Heroe>()
+        
+            .HasMany(heroe => heroe.Quests)
+            .WithMany(quests => quests.Heroes)
+            .UsingEntity(j => j.HasData(
+                new { HeroesId = 2, QuestsId = 2 },
+                new { HeroesId = 2, QuestsId = 3 },
+                new { HeroesId = 3, QuestsId = 3 }));
+            
+
+        
 
         
     }
